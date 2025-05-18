@@ -28,11 +28,17 @@ async function download() {
     case "video":
       console.log("動画をダウンロードします");
       const url = rls.question("input-URL:");
+      if (!ytdl.validateURL(url)) {
+        console.log("無効なURLです。\n");
+        menu();
+        return;
+      }
       const info = await ytdl.getInfo(url);
-      const title = info.player_response.videoDetails.title;
+      let title = info.player_response.videoDetails.title;
       console.log(title);
+      title = title.replace(/[\\/:*?"<>|]/g, "_").trim();
       console.log("ダウンロードを開始します...");
-      const stream = await ytdl(url, { quality: "highest" });
+      const stream = ytdl(url, { quality: "highest" });
       stream.pipe(fs.createWriteStream(title + ".mp4"));
       stream.on("error", (error) => {
         console.log(error);
