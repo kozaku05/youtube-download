@@ -2,21 +2,28 @@ let isSending = false;
 function sendReq() {
   if (isSending) return;
   isSending = true;
+  let title;
   const videoinfo = document.getElementById("videoinfo");
   videoinfo.innerHTML = "";
   videoinfo.innerHTML = "<h2>取得中...</h2>";
   const url = document.getElementById("url").value;
-  if (!url) return;
+  if (!url) return (isSending = false);
+  const check = document.getElementById("type").checked;
   try {
     fetch("/info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: url }),
     }).then(async (res) => {
-      if (!res.ok) return alert("情報の取得に失敗しました");
+      if (!res.ok)
+        return (
+          (isSending = false),
+          (videoinfo.innerHTML = ""),
+          alert("情報の取得に失敗しました")
+        );
       res = await res.json();
       videoinfo.innerHTML = "";
-      const title = res.title;
+      title = res.title;
       const thumbnail = res.thumbnail;
       const h2 = document.createElement("h2");
       const img = document.createElement("img");
@@ -29,11 +36,12 @@ function sendReq() {
     fetch("/download", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: url }),
+      body: JSON.stringify({ url: url, type: check }),
     }).then(async (res) => {
       if (!res.ok) return alert("ダウンロードに失敗しました");
       const blob = await res.blob();
-      let filename = "video.mp4";
+      title = title.replace(/[\\/:*?"<>|]/g, "");
+      let filename = check ? title + ".mp3" : title + ".mp4";
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
