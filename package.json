@@ -10,6 +10,8 @@
   "description": "",
   "dependencies": {
     "@distube/ytdl-core": "^4.16.10",
+    "express": "^5.1.0",
+    "https": "^1.0.0",
     "readline-sync": "^1.4.10"
   }
 }
