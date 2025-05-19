@@ -31,11 +31,7 @@ app.post("/download", async (req, res) => {
       return;
     }
     res.setHeader("Content-Disposition", "attachment; filename=video.mp4");
-    ytdl(url, {
-      quality: "highest",
-      filter: (format) =>
-        format.container === "mp4" && format.codecs.includes("avc1"), // H.264のみ
-    }).pipe(res);
+    ytdl(url, { quality: "highest" }).pipe(res);
   } catch (e) {
     console.log(e);
     res.status(500).send();
