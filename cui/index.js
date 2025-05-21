@@ -50,12 +50,56 @@ async function download() {
         menu();
       });
       return;
+    case "audio":
+      console.log("音声をダウンロードします");
+      const url2 = rls.question("input-URL:");
+      if (!ytdl.validateURL(url2)) {
+        console.log("無効なURLです。\n");
+        menu();
+        return;
+      }
+      const info2 = await ytdl.getInfo(url2);
+      let title2 = info2.player_response.videoDetails.title;
+      console.log(title2);
+      title2 = title2.replace(/[\\/:*?"<>|]/g, "_").trim();
+      console.log("ダウンロードを開始します...");
+      const stream2 = ytdl(url2, { quality: "highestaudio" });
+      stream2.pipe(fs.createWriteStream(title2 + ".mp3"));
+      stream2.on("error", (error) => {
+        console.log(error);
+        console.log("ダウンロードに失敗しました");
+        return;
+      });
+      stream2.on("finish", () => {
+        console.log("ダウンロードに成功しました\n");
+        menu();
+      });
+      break;
     default:
       console.log("type.jsonエラー");
   }
 }
 function type() {
-  console.log("後日実装予定\n");
+  console.log("1.動画\n2.音声\n");
+  const input = rls.question("type-Number:");
+  let data = fs.readFileSync("./type.json", "utf8");
+  data = JSON.parse(data);
+  switch (input) {
+    case "1":
+      data.type = "video";
+      console.log("動画を選択しました");
+      break;
+    case "2":
+      data.type = "audio";
+      console.log("音声を選択しました");
+      break;
+    default:
+      console.log("無効な選択肢です\n");
+      type();
+      return;
+  }
+  fs.writeFileSync("./type.json", JSON.stringify(data));
+  console.log("type.jsonを更新しました\n");
   menu();
 }
 menu();
